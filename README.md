@@ -1,6 +1,8 @@
 
  uvicorn app.main:app --reload 
 
+ uv run uvicorn app.main:app --reload
+
 
 uvicorn == 启动服务器
 
@@ -40,3 +42,29 @@ milvus
 qdrant
 elaticsearch
 向量数据库
+
+## 项目结构
+
+```text
+app/
+├── api/              接口层
+├── core/             核心配置
+├── schemas/          请求响应模型
+├── services/         业务逻辑
+├── repositories/     数据访问
+├── models/           数据库模型
+└── dependencies/     依赖注入
+
+
+dependencies
+    setting.py 配置依赖
+    auth.py 认证依赖 权限  api key token
+    database.py 数据库依赖
+    llm.py llm 依赖
+
+fastapi  
+    1. 分析接口函数参数
+    2. 发现某个参数使用了 Depends
+    3. 调用 Depends 里面的依赖函数
+    4. 依赖函数返回的值 作为接口函数的参数
+    5. 接口函数执行

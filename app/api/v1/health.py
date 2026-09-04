@@ -1,11 +1,20 @@
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from app.core.config import Settings
+from app.dependencies.settings import get_app_settins
 router = APIRouter()
 
-@router.get("/health")
-async def health():
-    return {"status": "ok", "version": "1.0.0", "service": "ai-fastapi-course"}
 
+async def get_request_source() -> str:
+    return "我有一个请求源"
+
+# @router.get("/health")
+# async def health(source: str = Depends(get_request_source)):
+#     return {"status": "ok", "version": "1.0.0", "service": "ai-fastapi-course", "source": source}
+
+@router.get("/health")
+async def health(settings: Settings = Depends(get_app_settins), source: str = Depends(get_request_source)):
+    return {"status": "ok", "version": "1.0.0", "service": "ai-fastapi-course", "source": source, "env": settings.app_env}
 
 
 @router.get("/error")
