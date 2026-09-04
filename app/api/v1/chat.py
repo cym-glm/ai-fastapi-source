@@ -1,8 +1,8 @@
 
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Path,Query, Body
 from app.schemas.response import ApiResponse
-from app.schemas.chat import ChatRequest,ChatResponse
+from app.schemas.chat import ChatRequest,ChatResponse,GenerateTitleRequest, GenerateTitleResponse
 from app.services.chat_service import chat_with_ai
 
 router = APIRouter()
@@ -11,10 +11,41 @@ router = APIRouter()
 @router.post("/chat", response_model=ApiResponse)
 async def chat(request: ChatRequest) -> ApiResponse:
     res =  await chat_with_ai(request)
-    return ApiResponse(
-        data=res.model_dump(),
+    return ApiResponse[ChatResponse](
+        data=res
     )
     # return ChatResponse(
     #     answer="Hello, this is a test response",
     #     model=request.model
     # )
+
+
+@router.post("/conversations/{conversation_id}/chat", response_model=ApiResponse[ChatResponse])
+async def chat_in_conversation(
+    request: ChatRequest,
+    conversation_id: str= Path(..., description="会话ID"), # path 参数
+    debug: bool = Query(default=False, description="是否开启调试模式")
+) -> ApiResponse[ChatResponse]:
+    res =  await chat_with_ai(request)
+    if debug:
+        res.trace_id = res.trace_id or "debug_trace"
+
+    res.session_id = conversation_id
+    return ApiResponse[ChatResponse](
+        data=res
+    )
+
+
+# @router.post("/title")
+# async def title(message: str = Body(..., embed=True, min_length=1,description="消息内容") ):
+#     return {
+#         "title": message[:20]
+#     }
+
+@router.post("/title", response_model=ApiResponse[GenerateTitleResponse])
+async def title(request: GenerateTitleRequest) -> ApiResponse[GenerateTitleResponse]:
+    title = request.title[:20]
+    return ApiResponse[GenerateTitleResponse](
+        data= GenerateTitleResponse(title=title)
+    )
+
