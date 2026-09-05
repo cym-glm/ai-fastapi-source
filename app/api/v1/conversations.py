@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path,Depends
+from app.dependencies.database import get_db_session, MockDBSession
+from app.dependencies.pagination import PaginationParams
 
 from app.schemas.conversation import (
     ConversationCreateRequest,
@@ -17,7 +19,11 @@ router = APIRouter()
     "/conversations",
     response_model=ApiResponse[ConversationResponse]
 )
-async def create_conversation(request: ConversationCreateRequest) -> ApiResponse[ConversationResponse]:
+async def create_conversation(
+    request: ConversationCreateRequest,
+    db: MockDBSession = Depends(get_db_session)) -> ApiResponse[ConversationResponse]:
+        sql_res = await db.execute("insert into conversations (title) values ('test')")
+        print(sql_res)
         result = await create_conversation_mesasge(request)
         return ApiResponse[ConversationResponse](data=result)
 
@@ -28,3 +34,17 @@ async def create_conversation(request: ConversationCreateRequest) -> ApiResponse
 async def get_conversation(conversation_id: str = Path(..., description="会话ID")) -> ApiResponse[ConversationMessagesResponse]:
     result = await get_conversation_mesage(conversation_id)
     return ApiResponse[ConversationMessagesResponse](data=result)
+
+
+@router.get(
+    "/conversations",
+    response_model=ApiResponse[dict]
+)
+async def list_conversations(
+    pagination: PaginationParams = Depends(PaginationParams)) -> ApiResponse[dict]:
+      return ApiResponse[dict](data={
+            "page": pagination.page,
+            "page_size": pagination.size,
+            "offset": pagination.offset,
+            "items": []
+    })

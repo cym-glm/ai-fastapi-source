@@ -9,5 +9,5 @@ class UserRole(str, Enum):
 class CurrentUser(BaseModel):
     user_id: str = Field(...,  description="The user's unique identifier")
     username: str = Field(..., description="The user's username")
-    role: UserRole = Field(default=UserRole.USER, alias="userRole",decription="The user's role")
+    role: UserRole = Field(default=UserRole.USER, decription="The user's role")
     is_active: bool = Field(default=True, alias="isActive", description="Whether the user is active or not")

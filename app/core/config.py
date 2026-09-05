@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = Field(default="/api/v1")
     debug: bool = Field(default=True)
 
+    app_api_key: str = Field(default="dev-api-key-123")
     default_model: str = Field(default="deepseek-chat")
     supported_models: str = Field(default="deepseek-chat,qwen-plus,gpt-4o-mini")
 
