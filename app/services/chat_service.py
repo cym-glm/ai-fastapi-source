@@ -6,10 +6,14 @@ from app.core.config import settings
 from app.core.exceptions import AppException, ErrorCode
 from app.schemas.chat import ChatRequest, ChatResponse, TokenUsage, SourceDocument,MessageRole
 from app.core.logging import get_logger
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.repositories.conversation_repository import conversation_repository
 
 logger = get_logger(__name__)
 
-async def chat_with_ai(request: ChatRequest) -> ChatResponse:
+async def chat_with_ai(
+        request: ChatRequest,
+        db: AsyncSession | None= None) -> ChatResponse:
     await asyncio.sleep(1)
 
     # supported_models = ["gpt-3.5-turbo", "gpt-4", "deepseek-chat", "qwen-72e"]
@@ -20,7 +24,7 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
     latest_user_message = get_latest_user_message(request)
 
     model = request.model or settings.default_model
-
+    answer = ""
     logger.info(f"chat_with_ai 收到用户请求，模型为{model}，answer_length={len(answer)}")
 
     if"触发业务异常" in latest_user_message:
@@ -30,7 +34,6 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
             status_code=500,
             data={"model": f"{request.model}  llm failed"}
         )
-
     if "AI Agent" in latest_user_message:
         answer= ("AI Agent 可以理解您的请求，请问您需要我做什么？")
     elif "RAG" in latest_user_message:
@@ -51,7 +54,22 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
     )
 
     source =  build_sources(latest_user_message)
-    
+
+    # 调用数据库层 
+    if db and request.session_id:
+        await conversation_repository.add_message(
+            db=db, 
+            conversation_id=request.session_id,
+            role=MessageRole.USER.value,
+            content=latest_user_message,
+            model=request.model)
+        await conversation_repository.add_message(
+            db=db, 
+            conversation_id=request.session_id,
+            role=MessageRole.ASSISTANT.value,
+            content=answer,
+            model=request.model)
+        
     return ChatResponse(
         answer=answer,
         model=model,

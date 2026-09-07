@@ -1,4 +1,6 @@
 from collections.abc import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import AsyncSessionLocal
 
 class MockDBSession:
     async def execute(self, sql: str)->str:
@@ -8,11 +10,12 @@ class MockDBSession:
 
 
 async def get_db_session() -> AsyncGenerator[MockDBSession, None]:
-    db = MockDBSession()
-    try:
-        yield db
-    finally:
-        await db.close()
+    # db = MockDBSession()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 

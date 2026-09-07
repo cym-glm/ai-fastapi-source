@@ -17,7 +17,7 @@ class ConversationCreateRequest(BaseModel):
 
 class ConversationResponse(BaseModel):
     conversation_id: str = Field(..., description="会话ID")
-    tilte: str = Field(..., description="会话标题")
+    title: str = Field(..., description="会话标题")
     status: ConversationStatus = Field(default=ConversationStatus.ACTIVE, description="会话状态")
     created_at: datetime = Field(default_factory=datetime.now, description="创建时间")
     updated_at: datetime = Field(default_factory=datetime.now, description="更新时间")
