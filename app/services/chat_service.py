@@ -3,7 +3,11 @@ import asyncio
 import uuid
 from fastapi import HTTPException
 from app.core.config import settings
+from app.core.exceptions import AppException, ErrorCode
 from app.schemas.chat import ChatRequest, ChatResponse, TokenUsage, SourceDocument,MessageRole
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 async def chat_with_ai(request: ChatRequest) -> ChatResponse:
     await asyncio.sleep(1)
@@ -17,6 +21,16 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
 
     model = request.model or settings.default_model
 
+    logger.info(f"chat_with_ai 收到用户请求，模型为{model}，answer_length={len(answer)}")
+
+    if"触发业务异常" in latest_user_message:
+        raise  AppException(
+            message="触发业务异常",
+            code=ErrorCode.LLM_CALL_FAILED,
+            status_code=500,
+            data={"model": f"{request.model}  llm failed"}
+        )
+
     if "AI Agent" in latest_user_message:
         answer= ("AI Agent 可以理解您的请求，请问您需要我做什么？")
     elif "RAG" in latest_user_message:
@@ -25,6 +39,10 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
         answer=("LangGraph 可以帮助您理解复杂的概念和关系，请问您需要了解什么内容？")
     else: 
         answer=("对不起，我不明白您的请求。请问您需要我做什么？")
+
+    logger.info(
+        f"chat_success model={model} answer_length={len(answer)}"
+    )
 
     usage = TokenUsage(
         prompt_tokens=count_tokens_from_messages(request),

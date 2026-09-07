@@ -1,6 +1,7 @@
 from fastapi import Header, HTTPException, status,Depends
 from app.schemas.user import CurrentUser, UserRole
 from app.core.config import settings
+from app.core.request_context import set_user_id
 
 
 async def verfy_api_key(
@@ -26,6 +27,7 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing username")
     
     role = UserRole.ADMIN if x_user_role == "admin" else UserRole.USER
+    set_user_id(x_user_id)
     return CurrentUser(user_id=x_user_id, username=x_username,  is_active=True, role=role)
 
 

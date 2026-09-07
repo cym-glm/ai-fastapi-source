@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     app_env: str = Field(default="development")
     app_version: str = Field(default="0.1.0")
     api_v1_prefix: str = Field(default="/api/v1")
-    debug: bool = Field(default=True)
+    debug: bool = Field(default=False)
 
     app_api_key: str = Field(default="dev-api-key-123")
     default_model: str = Field(default="deepseek-chat")

@@ -8,15 +8,26 @@ from fastapi import FastAPI,Query
 
 from app.api.v1.api import api_router as chat_router
 from app.core.config import settings
+from app.core.exception_handlers import register_exception_handlers
+from app.core.logging import setup_logging
+from app.core.middleware import register_middleware
 
 
 def create_app() -> FastAPI:
+    # 初始化日志配置
+    setup_logging()
     app = FastAPI(
         title= settings.app_name,
         description="FastAPI framework, high performance, easy to learn, fast to code, ready for production",
         version=settings.app_version,
         debug=settings.debug,
     )
+
+    # 注册中间件
+    register_middleware(app)
+    # 注册异常处理
+    register_exception_handlers(app)
+
     app.include_router(chat_router, prefix=settings.api_v1_prefix)
     # app.include_router(chat_router, prefix=settings.api_v1_prefix, tags=["chat"])
     # app.include_router(health_router, prefix=settings.api_v1_prefix, tags=["health"])

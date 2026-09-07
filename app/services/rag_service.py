@@ -4,9 +4,18 @@ from app.schemas.chat import SourceDocument, TokenUsage
 from app.schemas.rag import RAGQueryRequest, RAGQueryResponse
 from app.repositories.knowledge_repository import knowledge_repository
 
+from app.core.exceptions import AppException, ErrorCode
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 async def query_rag(request: RAGQueryRequest) -> RAGQueryResponse:
-    source  = await knowledge_repository.search_documents(
+
+    logger.info(
+        f"rag_query_start knowledge_base_id={request.knowledge_base_id} top_k={request.top_k}"
+    )
+
+    sources = await knowledge_repository.search_documents(
         question=request.question,
         knowledge_base_id=request.knowledge_base_id,
         top_k=request.top_k,
@@ -24,10 +33,14 @@ async def query_rag(request: RAGQueryRequest) -> RAGQueryResponse:
     # )
     answer = f"根据知识库 {request.knowledge_base_id} 的内容，RAG 是检索增强生成。"
 
+    logger.info(
+        f"rag_query_success knowledge_base_id={request.knowledge_base_id} source_count={len(answer)}"
+    )
+
     return RAGQueryResponse(
         answer=answer,
         knowledge_base_id=request.knowledge_base_id,
-        sources=[source],
+        sources=sources,
         usage=TokenUsage(
             prompt_tokens=len(request.question),
             completion_tokens=len(answer),

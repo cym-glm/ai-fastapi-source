@@ -20,3 +20,10 @@ async def health(settings: Settings = Depends(get_app_settins), source: str = De
 @router.get("/error")
 async def error_demo():
     raise HTTPException(status_code=400, detail="这是一个错误的示例")
+
+@router.get("/system-error-demo")
+async def system_error_demo():
+    result = 1 / 0
+    return {
+        "result": result
+    }
