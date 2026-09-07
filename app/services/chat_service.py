@@ -8,12 +8,15 @@ from app.schemas.chat import ChatRequest, ChatResponse, TokenUsage, SourceDocume
 from app.core.logging import get_logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.conversation_repository import conversation_repository
+from redis.asyncio import Redis
+from app.redis.cache import get_cached_chat_response, cache_chat_response
 
 logger = get_logger(__name__)
 
 async def chat_with_ai(
         request: ChatRequest,
-        db: AsyncSession | None= None) -> ChatResponse:
+        db: AsyncSession | None= None,
+        redis: Redis | None = None) -> ChatResponse:
     await asyncio.sleep(1)
 
     # supported_models = ["gpt-3.5-turbo", "gpt-4", "deepseek-chat", "qwen-72e"]
@@ -24,6 +27,23 @@ async def chat_with_ai(
     latest_user_message = get_latest_user_message(request)
 
     model = request.model or settings.default_model
+
+    if redis:
+        cached_answer = await get_cached_chat_response(
+            redis=redis, 
+            question=latest_user_message)
+        if cached_answer:
+            logger.info("chat_with_ai 使用缓存")
+            return ChatResponse(
+                answer=cached_answer,
+                model=model,
+                session_id=request.session_id or f"s_{uuid.uuid4().hex}",
+                message_id=f"m_{uuid.uuid4().hex[:8]}",
+                usage= {},
+                sources=[],
+                trace_id=f"trae_{uuid.uuid4().hex[:8]}"
+            )
+
     answer = ""
     logger.info(f"chat_with_ai 收到用户请求，模型为{model}，answer_length={len(answer)}")
 
@@ -69,6 +89,13 @@ async def chat_with_ai(
             role=MessageRole.ASSISTANT.value,
             content=answer,
             model=request.model)
+
+    if redis:
+        await cache_chat_response(
+            redis=redis, 
+            question=latest_user_message,
+            answer=answer)
+        
         
     return ChatResponse(
         answer=answer,
@@ -78,7 +105,6 @@ async def chat_with_ai(
         usage=usage,
         sources=source,
         trace_id=f"trae_{uuid.uuid4().hex[:8]}"
-
     )
 
 

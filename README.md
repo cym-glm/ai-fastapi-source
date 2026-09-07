@@ -3,6 +3,9 @@
 
  uv run uvicorn app.main:app --reload
 
+ 执行单个文件
+ uv run python -m app.scripts.test_db
+
 
 uvicorn == 启动服务器
 
@@ -78,3 +81,9 @@ fastapi
     成本统计
 
     
+agent_state.py == Agent 状态管理 
+lock.py == 分布式锁 
+rate_limit.py == 限流 
+cache.py == 缓存
+keys.py == 密钥管理 (统一的key命名)
+client.py == 创建redis客户端管理
