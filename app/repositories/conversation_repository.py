@@ -21,7 +21,8 @@ class ConversationRepository:
             title=request.title,
             user_id=user_id,
         )
-
+        
+        # 数据库存储
         db.add(conversation)
         await db.commit()
         await db.refresh(conversation)
@@ -33,6 +34,7 @@ class ConversationRepository:
         db: AsyncSession,
         conversation_id: str,
     ) -> list[ChatMessage]:
+        # 查询语句，按创建时间升序排列
         stmt = (
             select(Message)
             .where(Message.conversation_id == conversation_id)
@@ -40,6 +42,7 @@ class ConversationRepository:
         )
 
         result = await db.execute(stmt)
+
         messages = result.scalars().all()
 
         return [
@@ -66,6 +69,7 @@ class ConversationRepository:
             model=model,
         )
 
+        # 数据库存储 
         db.add(message)
         await db.commit()
         await db.refresh(message)

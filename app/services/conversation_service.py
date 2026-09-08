@@ -47,7 +47,7 @@ async def get_conversation_mesage(
         await cache_recent_messages(
             redis=redis,
             conversation_id=conversation_id,
-            messages=messages[-10:])
+            messages=messages[-10:]) # 只缓存最近的10条消息
         
     return ConversationMessagesResponse(
         conversation_id=conversation_id,
