@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependencies.database import get_db_session
 from redis.asyncio import Redis
 from app.dependencies.redis import get_redis_client
-
+from app.llm.base import BaseLLMProvider
+from app.dependencies.llm import get_llm_provider
 router = APIRouter()
 
 # response_model    id name eamil pass 
@@ -20,8 +21,10 @@ async def chat(
     request: ChatRequest, 
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session),
-    redis: Redis= Depends(get_redis_client)) -> ApiResponse:
-        res =  await chat_with_ai(request, db, redis)
+    redis: Redis= Depends(get_redis_client),
+    llm_provider: BaseLLMProvider = Depends(get_llm_provider)
+    ) -> ApiResponse:
+        res =  await chat_with_ai(request, db, redis, llm_provider)
         res.trace_id = f"{res.trace_id}_user_{current_user.user_id}"
         return ApiResponse[ChatResponse](
             data=res
