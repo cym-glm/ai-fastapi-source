@@ -23,6 +23,16 @@ class Settings(BaseSettings):
     rate_limit_window_seconds: int = Field(default=60)
     rate_limit_max_requests: int = Field(default=20)
 
+    openai_api_key: str = Field(default="")
+    openai_base_url: str = Field(default="https://api.openai.com/v1")
+
+    deepseek_api_key: str = Field(default="")
+    deepseek_base_url: str = Field(default="https://api.deepseek.com")
+
+    dashscope_api_key: str = Field(default="")
+    qwen_base_url: str = Field(default="https://dashscope.aliyuncs.com/compatible-mode/v1")
+
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

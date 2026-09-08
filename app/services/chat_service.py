@@ -18,7 +18,6 @@ async def chat_with_ai(
         db: AsyncSession | None= None,
         redis: Redis | None = None) -> ChatResponse:
     await asyncio.sleep(1)
-
     # supported_models = ["gpt-3.5-turbo", "gpt-4", "deepseek-chat", "qwen-72e"]
 
     # if request.model not in supported_models:
