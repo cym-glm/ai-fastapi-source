@@ -2,6 +2,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.core.config import Settings
 from app.dependencies.settings import get_app_settins
+from redis.asyncio import Redis
+from app.dependencies.redis import get_redis_client
 router = APIRouter()
 
 
@@ -26,4 +28,16 @@ async def system_error_demo():
     result = 1 / 0
     return {
         "result": result
+    }
+
+
+@router.get("/health/redis")
+async def redis_health(
+    redis: Redis = Depends(get_redis_client),
+):
+    pong = await redis.ping()
+
+    return {
+        "status": "ok" if pong else "error",
+        "redis": pong,
     }

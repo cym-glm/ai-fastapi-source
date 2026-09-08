@@ -5,13 +5,21 @@ from fastapi import FastAPI,Query
 # from app.api.v1.health import router as health_router
 # from app.api.v1.conversations import router as conversation_router
 # from app.api.v1.rag import router as rag_router
-
+from contextlib import asynccontextmanager
+from app.redis.client import close_redis
 from app.api.v1.api import api_router as chat_router
 from app.core.config import settings
 from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import setup_logging
 from app.core.middleware import register_middleware
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("应用启动")
+    yield
+    print("应用关闭")
+    await close_redis()
 
 def create_app() -> FastAPI:
     # 初始化日志配置
@@ -21,6 +29,7 @@ def create_app() -> FastAPI:
         description="FastAPI framework, high performance, easy to learn, fast to code, ready for production",
         version=settings.app_version,
         debug=settings.debug,
+        lifespan=lifespan,
     )
 
     # 注册中间件
