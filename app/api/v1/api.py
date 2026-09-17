@@ -5,6 +5,8 @@ from app.api.v1.conversations import router as conversation_router
 from app.api.v1.rag import router as rag_router
 from app.api.v1.models import router as model_router
 from app.api.v1.agents import router as agent_router
+from app.api.v1.structured_outputs import router as structured_outputs_router
+from app.api.v1.tool_calling import router as tool_router
 from app.core.constants import ApiTag
 from app.dependencies.auth import verfy_api_key
 
@@ -21,3 +23,5 @@ api_router.include_router(rag_router, tags=[ApiTag.RAG],dependencies=[Depends(ve
 # 模型列表不需要验证api key
 api_router.include_router(model_router, tags=[ApiTag.MODELS])
 api_router.include_router(agent_router, tags=[ApiTag.AGENTS],dependencies=[Depends(verfy_api_key)])
+api_router.include_router(structured_outputs_router, tags=["Structured Outputs"])
+api_router.include_router(tool_router, tags=["Tool Calling"])

@@ -1,5 +1,5 @@
 
- uvicorn app.main:app --reload 
+## 启动服务 uvicorn app.main:app --reload 
 
  uv run uvicorn app.main:app --reload
 
@@ -10,10 +10,25 @@ python -m app.scripts.llm_openai_responses_demo
 python -m app.scripts.llm_openai_compatible_chat_demo
 python -m app.scripts.llm_qwen_compatible_demo
 python -m app.scripts.token_usage_demo
+python -m app.scripts.test_llm_factory 
+python -m app.scripts.test_llm_deepseek_provider
 
+
+
+python -m app.scripts.test_chat_stream
+
+
+python -m app.scripts.test_sse_format
+
+
+python -m app.scripts.test_prompt_render
 
 
 python -m app.scripts.llm_stream_demo
+
+python -m app.scripts.test_structured_output_parse
+
+python -m app.scripts.test_intent_classification
 
 
 uvicorn == 启动服务器
@@ -293,11 +308,13 @@ prompt :
   {
     "role": "user",
     "content": "我的订单在哪？"
+    "tool_call_id": ['query_order']
   },
   {
     "role": "tool",
     "content": "订单数据：已发货。"
   }
+
 ]
 
 temperature 
@@ -441,3 +458,85 @@ POST /api/v1/chat
   llmresponse
   保存message usage
   返回chatresponse
+
+
+  API Key
+  Base URL
+  Endpoint
+  model
+  messages
+  role
+  temperature
+  max_tokens
+  stream
+  SSE
+  usage
+  timeout
+  retry
+
+
+
+
+  chat router - chat service - llm provider - DeepSeek api  - llm response
+
+
+## 提示词
+随手写字符串！
+
+可维护
+可复用
+可版本化
+可测试
+可组合
+可和业务场景绑定
+
+电商客服助手
+  我的订单什么时候发货？
+    请提供订单号，我帮你查询物流状态。
+
+    RAG
+    Prompt Engineering
+
+base.py 
+  prompt 基础模板
+renderer.py
+  prompt 渲染
+registry.py
+  prompt 注册表
+ecommerce.py
+  电商客服助手
+rag.py
+  RAG 助手
+agent.py
+  AI Agent 助手
+example.py
+  few-shot 示例
+
+
+
+
+
+```json
+{
+  "intent": "query_order"
+}
+```
+
+
+
+我的订单 10001 到哪儿了？
+
+编造--  
+
+用户提问---模型判断需要查询订单吗？ 模型生成工具调用参数
+后端接口 查询query——order工具  ---- function tool callling 
+工具返回真实的订单数据
+模型基于真实的数据 生成客服回复
+
+
+一次 tool Cal
+
+
+
+
+python -m app.scripts.test_tool_schema.py

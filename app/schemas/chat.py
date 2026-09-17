@@ -47,6 +47,14 @@ class ChatRequest(BaseModel):
     stream: bool = Field(False, description="Stream the response")
     session_id: str | None = Field(None, description="Session ID")
     user_id: str | None = Field(None, description="User ID")
+
+    prompt_scenario: str | None = Field(
+        default=None,
+        description="Prompt 场景，如 general_chat / ecommerce_customer_service / rag_qa",
+    )
+
+
+
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元数据")
 
     @field_validator("model")

@@ -30,3 +30,18 @@ class Message(Base):
         "Conversation",
         back_populates="messages",
     )
+    # status: Mapped[str] = mapped_column(
+    #     String(50),
+    #     nullable=False,
+    #     default="completed",
+    # )
+
+    # finish_reason: Mapped[str | None] = mapped_column(
+    #     String(50),
+    #     nullable=True,
+    # )
+
+    # error_message: Mapped[str | None] = mapped_column(
+    #     Text,
+    #     nullable=True,
+    # )

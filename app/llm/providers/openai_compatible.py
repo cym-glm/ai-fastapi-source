@@ -13,13 +13,15 @@ from app.llm.errors import (
 )
 from app.llm.http_client import create_llm_http_client
 from app.llm.schemas import (
+    LLMMessage,
     LLMProviderName,
     LLMRequest,
     LLMResponse,
+    LLMRole,
     LLMStreamChunk,
+    LLMToolCall,
     LLMUsage,
 )
-
 
 logger = get_logger(__name__)
 
@@ -200,10 +202,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         payload = {
             "model": request.model or self.default_model,
             "messages": [
-                {
-                    "role": message.role.value,
-                    "content": message.content,
-                }
+                self._build_message_payload(message)
                 for message in request.messages
             ],
             "temperature": request.temperature,
@@ -213,6 +212,14 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
         if request.max_tokens is not None:
             payload["max_tokens"] = request.max_tokens
+        if request.response_format is not None:
+            payload["response_format"] = request.response_format
+
+        if request.tools:
+            payload["tools"] = request.tools
+
+        if request.tool_choice is not None:
+            payload["tool_choice"] = request.tool_choice
 
         return payload
 
@@ -227,30 +234,32 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             completion_tokens=usage_data.get("completion_tokens", 0),
             total_tokens=usage_data.get("total_tokens", 0),
         )
+        tool_calls =  self._parse_tool_calls(message)
 
         return LLMResponse(
             provider=self.provider_name,
             model=data.get("model", self.default_model),
             content=message.get("content", ""),
+            tool_calls=tool_calls,
             usage=usage,
             raw_response=data,
         )
 
     def _parse_stream_chunk(self, data: dict) -> LLMStreamChunk:
-        choice = data["choices"][0]
-        delta = choice.get("delta") or {}
-        usage_data = data.get("usage")
+        choice = data["choices"][0]  # 获取第一个选择
+        delta = choice.get("delta") or {}  # 获取增量内容
+        usage_data = data.get("usage")  # 获取使用量数据
 
-        usage = None
+        usage = None  # 初始化使用量为空
 
-        if usage_data:
+        if usage_data:  # 如果有使用量数据
             usage = LLMUsage(
                 prompt_tokens=usage_data.get("prompt_tokens", 0),
                 completion_tokens=usage_data.get("completion_tokens", 0),
                 total_tokens=usage_data.get("total_tokens", 0),
             )
 
-        return LLMStreamChunk(
+        return LLMStreamChunk(  # 返回流式块对象
             provider=self.provider_name,
             model=data.get("model", self.default_model),
             content=delta.get("content") or "",
@@ -258,3 +267,51 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             usage=usage,
             raw_chunk=data,
         )
+
+    def _build_message_payload(self, message: LLMMessage) -> dict:
+        payload = {
+            "role": message.role.value,
+            "content": message.content,
+        }
+        if message.role == LLMRole.TOOL and message.tool_call_id:
+            payload["tool_call_id"] = message.tool_call_id
+
+        if message.role == LLMRole.ASSISTANT and message.tool_calls:
+            payload["tool_calls"] = [
+                {
+                    "id": tool_call.id,
+                    "type": "function",
+                    "function": {
+                        "name": tool_call.name,
+                        "arguments": tool_call.raw_arguments,
+                    },
+                }
+                for tool_call in message.tool_calls
+            ]
+
+        return payload
+
+
+    def _parse_tool_calls(self, message: dict) -> list[LLMToolCall]:
+        raw_tool_calls = message.get("tool_calls") or []
+        parsed_tool_calls: list[LLMToolCall] = []
+
+        for item in raw_tool_calls:
+            function = item.get("function") or {}
+            raw_arguments = function.get("arguments") or "{}"
+
+            try:
+                arguments = json.loads(raw_arguments)
+            except json.JSONDecodeError:
+                arguments = {}
+
+            parsed_tool_calls.append(
+                LLMToolCall(
+                    id=item.get("id", ""),
+                    name=function.get("name", ""),
+                    arguments=arguments,
+                    raw_arguments=raw_arguments,
+                )
+            )
+
+        return parsed_tool_calls

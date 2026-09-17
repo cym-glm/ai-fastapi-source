@@ -1,6 +1,8 @@
 
 from fastapi import FastAPI,Query
 
+from fastapi.middleware.cors import CORSMiddleware
+
 # from app.api.v1.chat import router as chat_router
 # from app.api.v1.health import router as health_router
 # from app.api.v1.conversations import router as conversation_router
@@ -30,6 +32,16 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         debug=settings.debug,
         lifespan=lifespan,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://127.0.0.1:5500",
+            "null",
+    ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # 注册中间件

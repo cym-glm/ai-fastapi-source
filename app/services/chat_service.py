@@ -1,5 +1,5 @@
 import uuid
-
+from collections.abc import AsyncGenerator
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +19,11 @@ from app.schemas.chat import (
     SourceDocument,
     TokenUsage,
 )
+
+from app.prompts.base import PromptScenario
+from app.services.prompt_service import prompt_service
+from app.utils.sse import format_done_event, format_error_event, format_sse
+from app.services.tool_calling_service import tool_calling_service
 
 
 logger = get_logger(__name__)
@@ -56,6 +61,23 @@ async def chat_with_ai(
                 trace_id=f"trace_{uuid.uuid4().hex[:8]}",
             )
 
+
+    # if request.prompt_scenario == "ecommerce_customer_service":
+    #     tool_result = await tool_calling_service.run_with_tools(
+    #         user_question=latest_user_message,
+    #         model=model,
+    #         llm_provider=llm_provider,
+    #     )
+    #     answer = tool_result[answer]
+    #     return ChatResponse(
+    #         answer=answer,
+    #         model=model,
+    #         session_id=request.session_id,
+    #         message_id=f"m_{uuid.uuid4().hex[:8]}",
+    #         usage=TokenUsage(),
+    #         sources=[],
+    #         trace_id=f"trace_{uuid.uuid4().hex[:8]}",
+    #     )
 
     llm_provider = llm_provider or LLMProviderFactory.create()
 
@@ -130,16 +152,19 @@ async def chat_with_ai(
     )
 
 
+
+
 def build_llm_request_from_chat_request(request: ChatRequest) -> LLMRequest:
     return LLMRequest(
         model=request.model,
-        messages=[
-            LLMMessage(
-                role=LLMRole(message.role.value),
-                content=message.content,
-            )
-            for message in request.messages
-        ],
+        messages=build_prompt_messages_for_chat(request),
+        # messages=[
+        #     LLMMessage(
+        #         role=LLMRole(message.role.value),
+        #         content=message.content,
+        #     )
+        #     for message in request.messages
+        # ],
         temperature=request.temperature,
         stream=request.stream,
     )
@@ -169,3 +194,46 @@ def build_mock_sources(question: str) -> list[SourceDocument]:
             },
         )
     ]
+
+
+
+
+def build_prompt_messages_for_chat(request: ChatRequest) -> list[LLMMessage]:
+    has_system_message = any(
+        message.role == MessageRole.SYSTEM
+        for message in request.messages
+    )
+
+    if has_system_message:
+        return [
+            LLMMessage(
+                role=LLMRole(message.role.value),
+                content=message.content,
+            )
+            for message in request.messages
+        ]
+
+    latest_user_message = get_latest_user_message(request)
+
+    if request.prompt_scenario == PromptScenario.ECOMMERCE_CUSTOMER_SERVICE.value:
+        return prompt_service.render_by_scenario(
+            scenario=PromptScenario.ECOMMERCE_CUSTOMER_SERVICE,
+            variables={
+                "user_question": latest_user_message,
+                "business_rules": request.metadata.get(
+                    "business_rules",
+                    "暂无额外业务规则。",
+                ),
+                "order_info": request.metadata.get(
+                    "order_info",
+                    "用户未提供订单信息。",
+                ),
+            },
+        )
+
+    return prompt_service.render_by_scenario(
+        scenario=PromptScenario.GENERAL_CHAT,
+        variables={
+            "user_question": latest_user_message,
+        },
+    )
