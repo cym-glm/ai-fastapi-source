@@ -52,7 +52,10 @@ class ChatRequest(BaseModel):
         default=None,
         description="Prompt 场景，如 general_chat / ecommerce_customer_service / rag_qa",
     )
-
+    prompt_version: str | None = Field(
+        default="v1",
+        description="Prompt 版本",
+    )
 
 
     metadata: dict[str, Any] = Field(default_factory=dict, description="扩展元数据")

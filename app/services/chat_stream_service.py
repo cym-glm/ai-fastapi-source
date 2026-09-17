@@ -1,33 +1,22 @@
 import uuid
 from collections.abc import AsyncGenerator
+
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.exceptions import AppException, ErrorCode
+from app.core.exceptions import ErrorCode
 from app.core.logging import get_logger
 from app.llm.base import BaseLLMProvider
 from app.llm.errors import LLMProviderError
-from app.llm.factory import LLMProviderFactory
-from app.llm.schemas import LLMMessage, LLMRequest, LLMRole
+from app.llm.schemas import LLMRequest
 from app.redis.cache import cache_chat_response, get_cached_chat_response
-from app.repositories.conversation_repository import conversation_repository
-from app.schemas.chat import (
-    ChatRequest,
-    ChatResponse,
-    MessageRole,
-    SourceDocument,
-    TokenUsage,
-)
-
-from app.prompts.base import PromptScenario
-from app.services.prompt_service import prompt_service
-from app.utils.sse import format_done_event, format_error_event, format_sse
-
+from app.schemas.chat import ChatRequest, MessageRole, TokenUsage
 from app.services.chat_service import (
     build_llm_request_from_chat_request,
     get_latest_user_message,
+    save_chat_messages,
 )
+from app.utils.sse import format_done_event, format_error_event, format_sse
 
 
 logger = get_logger(__name__)
@@ -50,8 +39,45 @@ async def stream_chat_with_ai(
 
     logger.info(
         f"chat_stream_start model={llm_request.model} "
-        f"message_count={len(llm_request.messages)}"
+        f"session_id={request.session_id}"
     )
+
+    if redis:
+        cached_answer = await get_cached_chat_response(
+            redis=redis,
+            question=latest_user_message,
+        )
+
+        if cached_answer:
+            yield format_sse(
+                event="start",
+                data={
+                    "message_id": message_id,
+                    "model": llm_request.model,
+                    "session_id": request.session_id,
+                    "cache_hit": True,
+                },
+            )
+
+            for part in split_text(cached_answer, size=8):
+                yield format_sse(
+                    event="message",
+                    data={
+                        "content": part,
+                        "message_id": message_id,
+                        "cache_hit": True,
+                    },
+                )
+
+            yield format_done_event(
+                {
+                    "message_id": message_id,
+                    "finish_reason": "cache_hit",
+                    "usage": final_usage.model_dump(),
+                }
+            )
+
+            return
 
     yield format_sse(
         event="start",
@@ -59,6 +85,7 @@ async def stream_chat_with_ai(
             "message_id": message_id,
             "model": llm_request.model,
             "session_id": request.session_id,
+            "cache_hit": False,
         },
     )
 
@@ -82,10 +109,17 @@ async def stream_chat_with_ai(
                     total_tokens=chunk.usage.total_tokens,
                 )
 
+        if redis and full_answer:
+            await cache_chat_response(
+                redis=redis,
+                question=latest_user_message,
+                answer=full_answer,
+            )
+
         if db and request.session_id:
-            await save_stream_messages(
+            await save_chat_messages(
                 db=db,
-                session_id=request.session_id,
+                conversation_id=request.session_id,
                 user_message=latest_user_message,
                 assistant_message=full_answer,
                 model=llm_request.model,
@@ -132,41 +166,8 @@ async def stream_chat_with_ai(
         )
 
 
-async def save_stream_messages(
-    db: AsyncSession,
-    session_id: str,
-    user_message: str,
-    assistant_message: str,
-    model: str,
-    usage: TokenUsage,
-):
-    await conversation_repository.add_message(
-        db=db,
-        conversation_id=session_id,
-        role=MessageRole.USER.value,
-        content=user_message,
-        model=model,
-        prompt_tokens=usage.prompt_tokens,
-    )
-
-    await conversation_repository.add_message(
-        db=db,
-        conversation_id=session_id,
-        role=MessageRole.ASSISTANT.value,
-        content=assistant_message,
-        model=model,
-        prompt_tokens=usage.prompt_tokens,
-        completion_tokens=usage.completion_tokens,
-        total_tokens=usage.total_tokens,
-    )
-
-
-
-def get_latest_user_message(request: ChatRequest) -> str:
-    for message in reversed(request.messages):
-        if message.role == MessageRole.USER:
-            return message.content
-
-    return request.messages[-1].content
-
- 
+def split_text(text: str, size: int = 8) -> list[str]:
+    return [
+        text[index:index + size]
+        for index in range(0, len(text), size)
+    ]
