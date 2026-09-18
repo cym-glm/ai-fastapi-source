@@ -5,7 +5,7 @@ from app.prompts.base import (
     PromptTemplate,
 )
 
-
+# 普通的聊天 Prompt
 INTENT_CLASSIFICATION_STRUCTURED_PROMPT_V1 = PromptTemplate(
     prompt_id="intent_classification_structured",
     name="客服意图识别结构化输出 Prompt",
@@ -46,7 +46,7 @@ INTENT_CLASSIFICATION_STRUCTURED_PROMPT_V1 = PromptTemplate(
     ],
 )
 
-
+# RAG 结构化回答 Prompt
 RAG_STRUCTURED_ANSWER_PROMPT_V1 = PromptTemplate(
     prompt_id="rag_structured_answer",
     name="RAG 结构化回答 Prompt",
@@ -93,7 +93,7 @@ RAG_STRUCTURED_ANSWER_PROMPT_V1 = PromptTemplate(
     ],
 )
 
-
+# Agent 规划结构化 Prompt 
 AGENT_PLAN_STRUCTURED_PROMPT_V1 = PromptTemplate(
     prompt_id="agent_plan_structured",
     name="Agent 规划结构化输出 Prompt",

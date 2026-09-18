@@ -540,3 +540,38 @@ example.py
 
 
 python -m app.scripts.test_tool_schema.py
+
+
+
+FastAPI 是接口层
+PostgreSQL 是持久化
+Redis 是缓存
+LLM Provider 是模型调用
+Prompt 是控制模型输出
+Streaming 是打字机效果
+Structured Output 是结构化结果
+Tool Calling 是工具调用
+
+
+
+前端页面
+  ↓
+FastAPI Router
+  ↓
+ChatService / ChatStreamService
+  ↓
+PromptService
+  ↓
+Redis Cache
+  ↓
+LLMProvider
+  ↓
+DeepSeek / Qwen / OpenAI
+  ↓
+ToolCallingService（可选）
+  ↓
+ToolExecutor
+  ↓
+业务工具 query_order
+  ↓
+PostgreSQL 保存消息
