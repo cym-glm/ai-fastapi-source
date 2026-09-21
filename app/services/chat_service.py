@@ -33,6 +33,7 @@ async def chat_with_ai(
     redis: Redis | None = None,
     llm_provider: BaseLLMProvider | None = None,
 ) -> ChatResponse:
+
     latest_user_message = get_latest_user_message(request)
     model = request.model or settings.default_model
 

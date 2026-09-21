@@ -575,3 +575,23 @@ ToolExecutor
 业务工具 query_order
   ↓
 PostgreSQL 保存消息
+
+
+
+ 普通chat
+  用户问， 模型回答
+tool calling
+  模型调用一次工具， 再回答
+agent
+  模型可以根据目标 多轮思考 多次调用工具 完成任务
+
+
+  Prompt 渲染
+  模型调用
+  结构化解析
+  工具调用
+  再次调用模型
+  Retriever 检索
+  Agent 多步循环执行
+
+  LangSmith   
