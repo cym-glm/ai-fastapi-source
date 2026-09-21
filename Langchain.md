@@ -88,3 +88,5 @@ python -m app.langchain_models.demo_messages_basic
 python -m app.langchain_models.demo_chat_model_invoke
 
 python -m app.scripts.test_lc22_message_adapter
+
+python -m app.langchain_prompts.demo_chat_prompt_template
