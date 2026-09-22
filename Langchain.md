@@ -102,16 +102,18 @@ python -m app.langchain_tools.demo_
   ↓
   模型返回 tool_calls
   ↓
-  后端解析 tool_calls
+  后端解析 tool_calls --json 
   ↓
   后端校验 arguments
   ↓
   后端执行 query_order
   ↓
-  工具返回真实结果
+  工具返回真实结果   
   ↓
   后端把 tool result 追加到 messages
   ↓
   再次调用模型
   ↓
-  模型生成最终回复
+  模型生成最终回复 
+
+  2次模型

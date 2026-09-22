@@ -8,6 +8,7 @@ from app.api.v1.agents import router as agent_router
 from app.api.v1.structured_outputs import router as structured_outputs_router
 from app.api.v1.tool_calling import router as tool_router
 from app.api.v1.langchain_structured_outputs import router as langchain_structured_outputs_router
+from app.api.v1.langchain_tools import router as langchain_tools_router
 from app.core.constants import ApiTag
 from app.dependencies.auth import verfy_api_key
 
@@ -27,3 +28,4 @@ api_router.include_router(agent_router, tags=[ApiTag.AGENTS],dependencies=[Depen
 api_router.include_router(structured_outputs_router, tags=["Structured Outputs"])
 api_router.include_router(tool_router, tags=["Tool Calling"])
 api_router.include_router(langchain_structured_outputs_router, tags=["LangChain Structured Outputs"])
+api_router.include_router(langchain_tools_router, tags=["LangChain Tools"])
