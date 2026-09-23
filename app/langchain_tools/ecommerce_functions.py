@@ -57,7 +57,6 @@ async def query_order(order_id: str) -> QueryOrderResult:
     # 此处仅为示例，实际应用中应从数据库或其他存储系统中查询订单信息
     # 真实业务里面---查询真实的业务即可，接口：java -springboot  python -fastapi  node - nestjs go 
     order = MOCK_ORDERS.get(order_id)
-
     if not order:
         return QueryOrderResult(
             order_id=order_id,

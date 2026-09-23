@@ -91,7 +91,10 @@ python -m app.scripts.test_lc22_message_adapter
 
 python -m app.langchain_prompts.demo_chat_prompt_template
 
-python -m app.langchain_tools.demo_ 
+python -m app.langchain_tools.demo_tool_decorator
+
+
+python -m app.langchain_agents.
 
 ##  18章 工具
   用户问题
