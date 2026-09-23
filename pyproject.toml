@@ -6,13 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.31.0",
+    "chromadb>=1.5.9",
     "fastapi>=0.141.1",
     "greenlet>=3.5.5",
     "httpx>=0.28.1",
     "langchain>=1.4.1",
+    "langchain-chroma>=1.1.0",
     "langchain-community>=0.4.2",
     "langchain-core>=1.6.3",
     "langchain-openai>=1.6.2",
+    "langchain-text-splitters>=1.1.2",
     "langgraph>=1.2.11",
     "pydantic-settings>=2.15.0",
     "redis>=8.1.0",
