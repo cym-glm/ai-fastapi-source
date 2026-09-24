@@ -5,6 +5,8 @@
 python -m app.langgraph_intro.demo_first_state_graph 
 
 
+python -m app.langgraph_state.demo_01_typed_dict_state 
+
 StateGraph
 State
 Node
