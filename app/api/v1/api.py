@@ -15,6 +15,7 @@ from app.core.constants import ApiTag
 from app.api.v1.langchain_rag import router as langchain_rag_router
 from app.api.v1.langchain_agent_rag import router as langchain_agent_rag_router
 from app.api.v1.langgraph_persistence import router as langgraph_persistence_router
+from app.api.v1.langgraph_hitl import router as langgraph_hitl_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -38,3 +39,4 @@ api_router.include_router(langchain_agents_router, tags=["LangChain Agents"])
 api_router.include_router(langchain_rag_router, tags=["LangChain RAG"])
 api_router.include_router(langchain_agent_rag_router, tags=["LangChain Agent RAG"])
 api_router.include_router(langgraph_persistence_router, tags=["LangGraph Persistence"])
+api_router.include_router(langgraph_hitl_router, tags=["LangGraph HITL"])
