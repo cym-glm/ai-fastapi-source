@@ -75,6 +75,7 @@ def query_order_node(state: EcommerceAgentState) -> dict:
     order_id = state["order_id"]
 
     if order_id == "10001":
+        # 模拟查询订单信息，此处仅为示例, 实际应用中应从外部API获取 接口---java py ts 
         order_info = {
             "order_id": "10001",
             "status": "shipped",
@@ -116,7 +117,7 @@ def query_order_node(state: EcommerceAgentState) -> dict:
         "logs": [f"query_order：订单状态为 {order_info['status_text']}"],
     }
 
-
+# rag 
 def retrieve_policy_node(state: EcommerceAgentState) -> dict:
     order_info = state.get("order_info")
 

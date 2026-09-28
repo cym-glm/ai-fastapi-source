@@ -10,7 +10,6 @@ from app.prompts.structured import (
 )
 
 
-
 class PromptRegistry:
     def __init__(self):
         self._prompts: dict[str, PromptTemplate] = {}
