@@ -93,6 +93,7 @@ def build_policy_query_node(state: RoutingState) -> dict:
 
 
 async def retrieve_policy_node(state: RoutingState) -> dict:
+    # 这里用的是 mock_search_policy，实际项目中换成实际的 RAG 检索服务
     result = await mock_search_policy(state["policy_query"])
 
     return {
@@ -166,6 +167,7 @@ def ask_order_id_node(state: RoutingState) -> dict:
 
 
 async def query_order_node(state: RoutingState) -> dict:
+    # 这里用的是 mock_query_order，实际项目中换成实际的订单查询服务
     result = await mock_query_order(state["order_id"])
 
     if not result["success"]:

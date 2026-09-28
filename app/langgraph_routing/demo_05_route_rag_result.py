@@ -27,6 +27,7 @@ def build_policy_query_node(state: RoutingState) -> dict:
 
 
 async def retrieve_policy_node(state: RoutingState) -> dict:
+    # 异步查询政策信息,  真实的查询业务接口  （） rag查询
     result = await mock_search_policy(state["policy_query"])
 
     return {

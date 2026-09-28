@@ -108,6 +108,7 @@ async def mock_search_policy(query: str | None) -> dict:
     }
 
 
+
 def create_initial_state(
     user_question: str,
 ) -> RoutingState:
