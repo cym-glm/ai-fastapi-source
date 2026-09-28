@@ -10,6 +10,9 @@ python -m app.langgraph_state.demo_01_typed_dict_state
 
 python -m app.langgraph_state.langgraph_node_edge
 
+python -m app.langgraph_state.langgraph_routing
+
+
 StateGraph
 State
 Node
