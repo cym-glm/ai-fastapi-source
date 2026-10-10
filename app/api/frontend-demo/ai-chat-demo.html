@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Chat Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      width: 100%;
+      height: 90px;
+      margin-top: 12px;
+    }
+
+    button {
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    #chat {
+      background: #fff;
+      border: 1px solid #ddd;
+      min-height: 360px;
+      padding: 16px;
+      margin-top: 16px;
+      white-space: pre-wrap;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .user {
+      background: #e8f0ff;
+    }
+
+    .assistant {
+      background: #f1f1f1;
+    }
+
+    .meta {
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI Chat Demo</h1>
+
+  <div class="toolbar">
+    <input id="conversationTitle" value="前端 AI Agent 学习咨询" />
+    <button onclick="createConversation()">创建会话</button>
+
+    <select id="model">
+      <option value="deepseek-chat">deepseek-chat</option>
+      <option value="qwen-plus">qwen-plus</option>
+    </select>
+
+    <select id="scenario">
+      <option value="general_chat">通用聊天</option>
+      <option value="ecommerce_customer_service">电商客服</option>
+    </select>
+
+    <button onclick="sendNormal()">普通发送</button>
+    <button onclick="sendStream()">流式发送</button>
+  </div>
+
+  <div>
+    <strong>当前会话：</strong>
+    <span id="conversationId">未创建</span>
+  </div>
+
+  <textarea id="question">请用三句话解释什么是 AI Agent。</textarea>
+
+  <div id="chat"></div>
+
+  <script>
+    const BASE_URL = 'http://127.0.0.1:8000/api/v1';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': 'dev-api-key-123',
+      'x-user-id': 'u_10001',
+      'x-username': 'dawei'
+    };
+
+    let conversationId = '';
+
+    async function createConversation() {
+      const title = document.getElementById('conversationTitle').value;
+
+      const response = await fetch(`${BASE_URL}/conversations`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ title })
+      });
+
+      const data = await response.json();
+
+      conversationId = data.data.conversation_id;
+      document.getElementById('conversationId').textContent = conversationId;
+
+      appendMessage('assistant', `会话已创建：${conversationId}`);
+    }
+
+    async function sendNormal() {
+      ensureConversation();
+
+      const question = document.getElementById('question').value;
+      const model = document.getElementById('model').value;
+      const scenario = document.getElementById('scenario').value;
+
+      appendMessage('user', question);
+
+      const response = await fetch(`${BASE_URL}/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(buildPayload(question, model, scenario, false))
+      });
+
+      const data = await response.json();
+
+      if (data.code !== 0) {
+        appendMessage('assistant', `请求失败：${data.message}`);
+        return;
+      }
+
+      appendMessage(
+        'assistant',
+        data.data.answer,
+        JSON.stringify(data.data.metadata || {}, null, 2)
+      );
+    }
+
+    async function sendStream() {
+      ensureConversation();
+
+      const question = document.getElementById('question').value;
+      const model = document.getElementById('model').value;
+      const scenario = document.getElementById('scenario').value;
+
+      appendMessage('user', question);
+
+      const assistantEl = appendMessage('assistant', '');
+
+      const response = await fetch(`${BASE_URL}/chat/stream`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(buildPayload(question, model, scenario, true))
+      });
+
+      if (!response.ok) {
+        assistantEl.textContent = `请求失败：${response.status}`;
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || '';
+
+        for (const rawEvent of events) {
+          handleSSEEvent(rawEvent, assistantEl);
+        }
+      }
+    }
+
+    function buildPayload(question, model, scenario, stream) {
+      const metadata = {};
+
+      if (scenario === 'ecommerce_customer_service') {
+        metadata.business_rules = '不能编造物流信息；没有订单号时必须先引导用户提供订单号。';
+        metadata.order_info = '如果用户提供订单号，则可以查询订单。';
+      }
+
+      return {
+        session_id: conversationId,
+        messages: [
+          {
+            role: 'user',
+            content: question
+          }
+        ],
+        model,
+        temperature: scenario === 'ecommerce_customer_service' ? 0.3 : 0.7,
+        stream,
+        prompt_scenario: scenario,
+        prompt_version: 'v1',
+        metadata
+      };
+    }
+
+    function handleSSEEvent(rawEvent, assistantEl) {
+      const lines = rawEvent.split('\n');
+
+      let eventName = 'message';
+      let dataText = '';
+
+      for (const line of lines) {
+        if (line.startsWith('event:')) {
+          eventName = line.replace('event:', '').trim();
+        }
+
+        if (line.startsWith('data:')) {
+          dataText += line.replace('data:', '').trim();
+        }
+      }
+
+      if (!dataText) {
+        return;
+      }
+
+      const data = JSON.parse(dataText);
+
+      if (eventName === 'message') {
+        assistantEl.textContent += data.content || '';
+      }
+
+      if (eventName === 'done') {
+        console.log('done:', data);
+      }
+
+      if (eventName === 'error') {
+        assistantEl.textContent += `\n\n[错误] ${data.message}`;
+      }
+    }
+
+    function appendMessage(role, content, meta) {
+      const chat = document.getElementById('chat');
+
+      const el = document.createElement('div');
+      el.className = `message ${role}`;
+      el.textContent = `${role === 'user' ? '用户' : 'AI'}：\n${content}`;
+
+      if (meta) {
+        const metaEl = document.createElement('div');
+        metaEl.className = 'meta';
+        metaEl.textContent = meta;
+        el.appendChild(metaEl);
+      }
+
+      chat.appendChild(el);
+
+      return el;
+    }
+
+    function ensureConversation() {
+      if (!conversationId) {
+        throw new Error('请先创建会话');
+      }
+    }
+  </script>
+</body>
+</html>
