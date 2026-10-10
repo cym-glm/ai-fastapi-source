@@ -17,6 +17,7 @@ from app.api.v1.langchain_agent_rag import router as langchain_agent_rag_router
 from app.api.v1.langgraph_persistence import router as langgraph_persistence_router
 from app.api.v1.langgraph_hitl import router as langgraph_hitl_router
 from app.api.v1.langgraph_memory import router as langgraph_memory_router
+from app.api.v1.langgraph_multi_agent import router as langgraph_multi_agent_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -42,3 +43,4 @@ api_router.include_router(langchain_agent_rag_router, tags=["LangChain Agent RAG
 api_router.include_router(langgraph_persistence_router, tags=["LangGraph Persistence"])
 api_router.include_router(langgraph_hitl_router, tags=["LangGraph HITL"])
 api_router.include_router(langgraph_memory_router, tags=["LangGraph Memory"])
+api_router.include_router(langgraph_multi_agent_router, tags=["LangGraph Multi-Agent"])
