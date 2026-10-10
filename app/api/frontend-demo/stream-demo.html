@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Chat Stream Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    #answer {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      min-height: 120px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI Chat Stream Demo</h1>
+
+  <textarea id="question">请用1句话解释什么是 Streaming 流式输出。</textarea>
+  <br />
+  <button onclick="sendMessage()">发送</button>
+
+  <div id="answer"></div>
+
+  <script>
+    async function sendMessage() {
+      const question = document.getElementById('question').value;
+      const answerEl = document.getElementById('answer');
+
+      answerEl.textContent = '';
+
+      const response = await fetch('http://127.0.0.1:8000/api/v1/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'dev-api-key-123',
+          'x-user-id': 'u_10001',
+          'x-username': 'dawei'
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: question
+            }
+          ],
+          model: 'deepseek-chat',
+          temperature: 0.7,
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        answerEl.textContent = '请求失败：' + response.status;
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || '';
+
+        for (const rawEvent of events) {
+          handleSSEEvent(rawEvent, answerEl);
+        }
+      }
+    }
+
+    function handleSSEEvent(rawEvent, answerEl) {
+      const lines = rawEvent.split('\n');
+
+      let eventName = 'message';
+      let dataText = '';
+
+      for (const line of lines) {
+        if (line.startsWith('event:')) {
+          eventName = line.replace('event:', '').trim();
+        }
+
+        if (line.startsWith('data:')) {
+          dataText += line.replace('data:', '').trim();
+        }
+      }
+
+      if (!dataText) {
+        return;
+      }
+
+      const data = JSON.parse(dataText);
+
+      if (eventName === 'message') {
+        answerEl.textContent += data.content || '';
+      }
+
+      if (eventName === 'done') {
+        console.log('done:', data);
+      }
+
+      if (eventName === 'error') {
+        answerEl.textContent += '\n\n[错误] ' + data.message;
+      }
+    }
+  </script>
+</body>
+</html>
