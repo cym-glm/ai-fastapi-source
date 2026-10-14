@@ -1,0 +1,431 @@
+{
+  "name": "default_hybrid_full",
+  "total_cases": 7,
+  "retrieval_metrics": {
+    "hit_rate": 0.8571428571428571,
+    "recall_at_k": 0.8571428571428571,
+    "precision_at_k": 0.2857142857142857,
+    "mrr": 0.7857142857142857,
+    "ndcg_at_k": 0.8044185362244939,
+    "source_accuracy": 0.8571428571428571
+  },
+  "generation_metrics": {
+    "faithfulness": 0.9362974024298066,
+    "answer_relevance": 0.7142857142857143,
+    "answer_correctness": 0.8495670995670995,
+    "context_relevance": 0.8571428571428571,
+    "citation_accuracy": 0.8571428571428571
+  },
+  "case_results": [
+    {
+      "case": {
+        "case_id": "case_refund_001",
+        "question": "没发货可以退钱吗？",
+        "category": "refund",
+        "expected_chunk_ids": [
+          "after_sales_001"
+        ],
+        "expected_document_ids": [
+          "doc_after_sales"
+        ],
+        "expected_answer_keywords": [
+          "未发货",
+          "退款"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/after_sales.txt"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "easy",
+        "expected_answer": "订单未发货时，可以申请取消订单并退款。",
+        "notes": "口语化退款问题"
+      },
+      "retrieval": {
+        "case_id": "case_refund_001",
+        "question": "没发货可以退钱吗？",
+        "retrieved_chunk_ids": [
+          "after_sales_001",
+          "after_sales_002",
+          "invoice_001"
+        ],
+        "expected_chunk_ids": [
+          "after_sales_001"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 1.0,
+        "ndcg_at_k": 1.0,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_refund_001",
+        "question": "没发货可以退钱吗？",
+        "answer": "根据资料，订单未发货时，用户可以申请取消订单并退款。退款通常会在审核通过后 1 到 3 个工作日原路返回。",
+        "faithfulness": 0.9512195121951219,
+        "answer_relevance": 1.0,
+        "answer_correctness": 1.0,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_refund_002",
+        "question": "已经发货了还能直接退款吗？",
+        "category": "refund",
+        "expected_chunk_ids": [
+          "after_sales_002"
+        ],
+        "expected_document_ids": [
+          "doc_after_sales"
+        ],
+        "expected_answer_keywords": [
+          "已发货",
+          "退货",
+          "质量问题"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/after_sales.txt"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "medium",
+        "expected_answer": "订单已发货后，用户需要收到商品后再发起退货退款申请。",
+        "notes": "已发货退款规则"
+      },
+      "retrieval": {
+        "case_id": "case_refund_002",
+        "question": "已经发货了还能直接退款吗？",
+        "retrieved_chunk_ids": [
+          "after_sales_001",
+          "after_sales_002",
+          "invoice_001"
+        ],
+        "expected_chunk_ids": [
+          "after_sales_002"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 0.5,
+        "ndcg_at_k": 0.6309297535714575,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_refund_002",
+        "question": "已经发货了还能直接退款吗？",
+        "answer": "根据资料，订单未发货时，用户可以申请取消订单并退款。退款通常会在审核通过后 1 到 3 个工作日原路返回。",
+        "faithfulness": 0.9512195121951219,
+        "answer_relevance": 0.0,
+        "answer_correctness": 0.5833333333333334,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [
+          "已发货",
+          "退货",
+          "质量问题"
+        ],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_logistics_001",
+        "question": "快递超过 7 天没动怎么办？",
+        "category": "logistics",
+        "expected_chunk_ids": [
+          "logistics_001"
+        ],
+        "expected_document_ids": [
+          "doc_logistics"
+        ],
+        "expected_answer_keywords": [
+          "物流",
+          "7 天",
+          "客服"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/logistics.txt"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "easy",
+        "expected_answer": "如果物流超过 7 天没有更新，建议联系客服协助核查。",
+        "notes": "物流异常"
+      },
+      "retrieval": {
+        "case_id": "case_logistics_001",
+        "question": "快递超过 7 天没动怎么办？",
+        "retrieved_chunk_ids": [
+          "logistics_001",
+          "after_sales_001",
+          "after_sales_002"
+        ],
+        "expected_chunk_ids": [
+          "logistics_001"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 1.0,
+        "ndcg_at_k": 1.0,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_logistics_001",
+        "question": "快递超过 7 天没动怎么办？",
+        "answer": "根据资料，如果物流超过 7 天没有更新，建议联系客服协助核查。",
+        "faithfulness": 0.9285714285714286,
+        "answer_relevance": 1.0,
+        "answer_correctness": 1.0,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_invoice_001",
+        "question": "企业发票需要填写什么？",
+        "category": "invoice",
+        "expected_chunk_ids": [
+          "invoice_001"
+        ],
+        "expected_document_ids": [
+          "doc_invoice"
+        ],
+        "expected_answer_keywords": [
+          "企业发票",
+          "公司名称",
+          "纳税人识别号"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/invoice.txt"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "easy",
+        "expected_answer": "企业发票需要填写公司名称和纳税人识别号。",
+        "notes": "发票规则"
+      },
+      "retrieval": {
+        "case_id": "case_invoice_001",
+        "question": "企业发票需要填写什么？",
+        "retrieved_chunk_ids": [
+          "invoice_001",
+          "employee_002",
+          "after_sales_002"
+        ],
+        "expected_chunk_ids": [
+          "invoice_001"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 1.0,
+        "ndcg_at_k": 1.0,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_invoice_001",
+        "question": "企业发票需要填写什么？",
+        "answer": "根据资料，企业发票需要填写公司名称和纳税人识别号。",
+        "faithfulness": 0.9259259259259259,
+        "answer_relevance": 1.0,
+        "answer_correctness": 1.0,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_leave_001",
+        "question": "入职多久可以申请年假？",
+        "category": "leave",
+        "expected_chunk_ids": [
+          "employee_001"
+        ],
+        "expected_document_ids": [
+          "doc_employee_handbook"
+        ],
+        "expected_answer_keywords": [
+          "入职满一年",
+          "年假"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/employee_handbook.md"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "easy",
+        "expected_answer": "员工入职满一年后，可以按照公司制度申请年假。",
+        "notes": "HR 年假制度"
+      },
+      "retrieval": {
+        "case_id": "case_leave_001",
+        "question": "入职多久可以申请年假？",
+        "retrieved_chunk_ids": [
+          "employee_001",
+          "after_sales_002",
+          "invoice_001"
+        ],
+        "expected_chunk_ids": [
+          "employee_001"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 1.0,
+        "ndcg_at_k": 1.0,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_leave_001",
+        "question": "入职多久可以申请年假？",
+        "answer": "根据资料，员工入职满一年后，可以按照公司制度申请年假。",
+        "faithfulness": 0.92,
+        "answer_relevance": 1.0,
+        "answer_correctness": 1.0,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_reimbursement_001",
+        "question": "差旅报销要提交哪些材料？",
+        "category": "reimbursement",
+        "expected_chunk_ids": [
+          "employee_002"
+        ],
+        "expected_document_ids": [
+          "doc_employee_handbook"
+        ],
+        "expected_answer_keywords": [
+          "差旅报销",
+          "发票",
+          "行程单",
+          "审批记录"
+        ],
+        "expected_source_paths": [
+          "data/sample_docs/employee_handbook.md"
+        ],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "easy",
+        "expected_answer": "差旅报销需要提交发票、行程单和审批记录。",
+        "notes": "财务报销制度"
+      },
+      "retrieval": {
+        "case_id": "case_reimbursement_001",
+        "question": "差旅报销要提交哪些材料？",
+        "retrieved_chunk_ids": [
+          "employee_002",
+          "invoice_001",
+          "after_sales_001"
+        ],
+        "expected_chunk_ids": [
+          "employee_002"
+        ],
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.3333333333333333,
+        "mrr": 1.0,
+        "ndcg_at_k": 1.0,
+        "source_accuracy": 1.0
+      },
+      "generation": {
+        "case_id": "case_reimbursement_001",
+        "question": "差旅报销要提交哪些材料？",
+        "answer": "根据资料，差旅报销需要提交发票、行程单和审批记录。",
+        "faithfulness": 0.9259259259259259,
+        "answer_relevance": 1.0,
+        "answer_correctness": 1.0,
+        "context_relevance": 1.0,
+        "citation_accuracy": 1.0,
+        "missing_keywords": [],
+        "unsupported_claims": []
+      }
+    },
+    {
+      "case": {
+        "case_id": "case_unknown_001",
+        "question": "公司班车路线是什么？",
+        "category": "unknown",
+        "expected_chunk_ids": [],
+        "expected_document_ids": [],
+        "expected_answer_keywords": [
+          "无法确认"
+        ],
+        "expected_source_paths": [],
+        "metadata_filter": {
+          "tenant_id": "tenant_001"
+        },
+        "difficulty": "medium",
+        "expected_answer": "根据当前资料无法确认。",
+        "notes": "知识库不存在问题，用于测试兜底"
+      },
+      "retrieval": {
+        "case_id": "case_unknown_001",
+        "question": "公司班车路线是什么？",
+        "retrieved_chunk_ids": [
+          "after_sales_001",
+          "logistics_001",
+          "invoice_001"
+        ],
+        "expected_chunk_ids": [],
+        "hit_rate": 0.0,
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_k": 0.0,
+        "source_accuracy": 0.0
+      },
+      "generation": {
+        "case_id": "case_unknown_001",
+        "question": "公司班车路线是什么？",
+        "answer": "根据资料，订单未发货时，用户可以申请取消订单并退款。退款通常会在审核通过后 1 到 3 个工作日原路返回。",
+        "faithfulness": 0.9512195121951219,
+        "answer_relevance": 0.0,
+        "answer_correctness": 0.36363636363636365,
+        "context_relevance": 0.0,
+        "citation_accuracy": 0.0,
+        "missing_keywords": [
+          "无法确认"
+        ],
+        "unsupported_claims": []
+      }
+    }
+  ],
+  "config": {
+    "mode": "hybrid",
+    "top_k": 3,
+    "candidate_k": 10,
+    "vector_weight": 0.7,
+    "keyword_weight": 0.3,
+    "use_query_rewrite": true,
+    "use_multi_query": true,
+    "use_mmr": true,
+    "use_rerank": true,
+    "min_score": 0.01,
+    "max_context_chars": 2000,
+    "metadata_filter": {
+      "tenant_id": "tenant_001"
+    }
+  }
+}

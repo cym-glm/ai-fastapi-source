@@ -22,6 +22,8 @@ from app.api.v1.langgraph_ecommerce_agent import router as ecommerce_agent_route
 from app.api.v1.document_parsing import router as document_parser_router
 from app.api.v1.document_chunking import router as document_chunking_router
 from app.api.v1.vector_knowledge import router as vector_knowledge_router
+from app.api.v1.advanced_retrieval import router as advanced_retrieval_router
+from app.api.v1.rag_evaluation import router as rag_evaluation_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -52,3 +54,5 @@ api_router.include_router(ecommerce_agent_router, tags=["Project 2 - LangGraph E
 api_router.include_router(document_parser_router, tags=["Document Parsing"])
 api_router.include_router(document_chunking_router, tags=["Document Chunking"])
 api_router.include_router(vector_knowledge_router, tags=["Vector Knowledge"])
+api_router.include_router(advanced_retrieval_router, tags=["Advanced Retrieval"])
+api_router.include_router(rag_evaluation_router, tags=["RAG Evaluation"])
