@@ -25,6 +25,8 @@ from app.api.v1.vector_knowledge import router as vector_knowledge_router
 from app.api.v1.advanced_retrieval import router as advanced_retrieval_router
 from app.api.v1.rag_evaluation import router as rag_evaluation_router
 from app.api.v1.enterprise_kb import router as enterprise_kb_router
+from app.api.v1.deepagents_core import router as deep_agents_core_router
+from app.api.v1.deepagents_planning import router as deepagents_planning_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -58,3 +60,5 @@ api_router.include_router(vector_knowledge_router, tags=["Vector Knowledge"])
 api_router.include_router(advanced_retrieval_router, tags=["Advanced Retrieval"])
 api_router.include_router(rag_evaluation_router, tags=["RAG Evaluation"])
 api_router.include_router(enterprise_kb_router, tags=["Enterprise KB"])
+api_router.include_router(deep_agents_core_router, tags=["DeepAgents Core"])
+api_router.include_router(deepagents_planning_router, tags=["DeepAgents Planning"])
