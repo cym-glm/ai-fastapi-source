@@ -31,6 +31,7 @@ from app.api.v1.deepagents_subagent import router as deepagents_subagent_router
 from app.api.v1.deepagents_context import router as deepagents_context_router
 from app.api.v1.deep_research_agent import router as deep_research_agent_router
 from app.api.v1.mcp_intro import router as mcp_intro_router
+from app.api.v1.mcp_server_dev import router as mcp_server_dev_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -70,3 +71,4 @@ api_router.include_router(deepagents_subagent_router, tags=["DeepAgents SubAgent
 api_router.include_router(deepagents_context_router, tags=["DeepAgents Context"])
 api_router.include_router(deep_research_agent_router, tags=["Deep Research Agent"])
 api_router.include_router(mcp_intro_router, tags=["MCP Intro"])
+api_router.include_router(mcp_server_dev_router, tags=["MCP Server Dev"])
