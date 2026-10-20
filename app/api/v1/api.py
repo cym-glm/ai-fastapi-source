@@ -29,6 +29,7 @@ from app.api.v1.deepagents_core import router as deep_agents_core_router
 from app.api.v1.deepagents_planning import router as deepagents_planning_router
 from app.api.v1.deepagents_subagent import router as deepagents_subagent_router
 from app.api.v1.deepagents_context import router as deepagents_context_router
+from app.api.v1.deep_research_agent import router as deep_research_agent_router
 from app.dependencies.auth import verfy_api_key
 
 
@@ -66,3 +67,4 @@ api_router.include_router(deep_agents_core_router, tags=["DeepAgents Core"])
 api_router.include_router(deepagents_planning_router, tags=["DeepAgents Planning"])
 api_router.include_router(deepagents_subagent_router, tags=["DeepAgents SubAgent"])
 api_router.include_router(deepagents_context_router, tags=["DeepAgents Context"])
+api_router.include_router(deep_research_agent_router, tags=["Deep Research Agent"])
